@@ -1,0 +1,698 @@
+import csv
+
+version = ("v.2.1.5 'Tuak'")
+last_compiled = ("18:21, 18 NOV 2019")
+
+def buka(filename):
+    '''
+    Membuka file .csv yang berisi DataBase Budaya
+    '''
+    try:
+        with open(filename) as file:
+            list_baris=[]
+            master_list = []
+            dicc = {}
+            for line in file:
+                list_baris=(line.split(','))
+                list_baris[-1] = list_baris[-1].strip()
+                temp_key = str(list_baris[0])
+                temp_val = list_baris[1:]
+                dicc[temp_key] = temp_val
+                master_list.append(list_baris)
+                list_baris=[]
+                temp_key = []
+                temp_val=[]
+        file.close()
+        return dicc, master_list
+    except OSError:
+        print("Nama file tidak dikenal!")
+        master_list = []
+        dictionary = {}
+        return dictionary, master_list
+
+def pisah (string):
+    '''
+    Membuat pemisah dengan karakter di string
+    '''
+    print (string*125)
+
+def line_skip():
+    '''
+    Membuat lineskip
+    '''
+    print("")
+
+def header():
+    '''
+    Mencetak header Program
+    '''
+    pisah("%")
+    print ('{:<2}{:^121}{:>2}'.format("||", "Selamat datang di", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", "BudayaKB™", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", "Lite Edition", "||")) #29
+    print ('{:<2}{:^121}{:>2}'.format("||", version, "||")) #33
+    pisah("%")
+    line_skip()
+
+def append_input(dictionary):
+    '''
+    Meminta input untuk membuat entri baru di Dictionary
+    '''
+    while True:
+        print ("Masukkan nama budaya...")
+        Nama = input(">>> ")
+        line_skip()
+        print ("Masukkan tipe budaya...")
+        Tipe = input(">>> ")
+        line_skip()
+        print ("Masukkan asal budaya...")
+        Asal = input(">>> ")
+        line_skip()
+        print ("Masukkan referensi budaya...")
+        Referensi = input(">>> ")
+        line_skip()
+        print ("Anda akan menginput")
+        print ('Budaya bernama {} yang bertipe {}. Budaya ini berasal dari {}, dengan referensi di {}.'\
+            .format(Nama, Tipe, Asal, Referensi))
+        print ("Lanjutkan? (Y/N)")
+        sentinel=input (">>> ")
+        if sentinel == ("Y") or sentinel == ("y"):
+            line_skip()
+            break
+        elif sentinel == ("N") or sentinel == ("n"):
+            line_skip()
+            print ("Apakah anda ingin mengulangi input? (Y/N)")
+            repeat_sentinel = input(">>> ")
+            if repeat_sentinel == ("N") or repeat_sentinel == ("n"):
+                return
+    return Nama, Tipe, Asal, Referensi
+
+def update_data(dictionary, nama_data):
+    '''Mengubah data dalam dictionary'''
+    list_of_values = list(dictionary[nama_data])
+    updating_lov = list_of_values
+    print("Saat ini, {}, memiliki tipe {}. Budaya ini berasal dari {}, dengan referensi {}."\
+        .format(nama_data, list_of_values[0], list_of_values[1], list_of_values[2]))
+    print("Apakah anda ingin melanjutkan mengupdate data {}? (Y/N)".format(nama_data))
+    sentinel = input(">>> ")
+    if sentinel == "Y" or sentinel == "y":
+        print ("Mengupdate {}...".format(nama_data))
+        while True:
+            print ("Pilih data untuk diupdate!")
+            line_skip()
+            print ("Masukkan 'T' untuk mengubah tipe.")
+            print ("Masukkan 'A' untuk mengubah asal.")
+            print ("Masukkan 'R' untuk mengubah referensi.")
+            print ("Masukkan 'Q' untuk menyimpan update dan keluar mode pengeditan.")
+            print ("Masukkan 'U' untuk merevert update dan keluar mode pengeditan.")
+            selector_input = input(">>> ")
+            data_selector = selector_input.capitalize()
+            line_skip()
+            
+            if data_selector==("T"):
+                print ("Masukkan tipe yang baru untuk {}".format(nama_data))
+                new_data = input (">>> ")
+                updating_lov[0]=new_data
+            elif data_selector==("A"):
+                print ("Masukkan asal yang baru untuk {}".format(nama_data))
+                new_data = input (">>> ")
+                updating_lov[1]=new_data
+            elif data_selector==("R"):
+                print ("Masukkan referensi yang baru untuk {}".format(nama_data))
+                new_data = input (">>> ")
+                updating_lov[1]=new_data
+            elif data_selector==("Q"):
+                dictionary[nama_data] = updating_lov
+                return (dictionary)
+            elif data_selector==("U"):
+                return(dictionary)
+            else:
+                print ("Perintah tidak dikenal!")
+
+def update_master_list(dictionary):
+    '''
+    Memperbaharui MasterList berdasarkan Dictionary.
+    '''
+    master_list =[]
+    list_of_keys = list(dictionary.keys())
+    list_of_val = list(dictionary.values())
+
+    for i in range (len(dictionary)):
+        slave_list = []
+        slave_list.append(list_of_keys[i])
+        slave_list.append(list_of_val[i])
+        master_list.append(slave_list)
+    return master_list
+
+def help():
+    '''Menampilkan menu bantuan'''
+    pisah("=")
+    print ('{:<4}{:^117}{:>4}'.format("****","-= Bantuan untuk BudayaKB™ Lite Edition =-","****"))
+    pisah("-")
+    print ('{:^125}'.format("Perhatian:"))
+    print ('{:^125}'.format("Program ini menggunakan format input"))
+    print ('{:^125}'.format("command -argument"))
+    print ('{:^125}'.format("catatan: command TIDAK case-sensitive"))
+    print ('{:^125}'.format("Program ini dapat menangani format .csv dan .txt"))
+    print ('{:^125}'.format(("Program ini memiliki {} perintah").format("16")))
+    pisah("-")
+    print ('{:^125}'.format("Daftar Perintah"))
+    pisah("-")
+    print ('{:^125}'.format("-=Perintah manajemen database=-"))
+    pisah("-")
+    gp = "Gunakan perintah"
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("1.", gp, "IMPORT", \
+        "untuk mengimpor file (contoh: IMPORT -namaberkas.csv)"))
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("2.", gp, "REFRESH", \
+        "untuk memperbaharui database setelah operasi manajemen data."))
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("3.", gp, "EXPORT", \
+        "untuk mengekspor database. (contoh: EXPORT -FileName.csv)"))
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("4.", gp, "CLEAR", \
+        "untuk menghapus database sementara dalam program"))
+    pisah("-")
+    print ('{:^125}'.format("-=Perintah manajemen data=-"))
+    pisah("-")
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("5.", gp, "TAMBAH", \
+        "untuk menambahkan data (ikuti perintah.)"))
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("6.", gp, "HAPUS", \
+        "untuk menghapus data (contoh: HAPUS -Tari Saman)"))
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("7.", gp, "UBAH", \
+        "untuk mengubah data (contoh: UBAH -Tari Saman)"))
+    pisah("-")
+    print ('{:^125}'.format("-=Perintah pencarian data=-"))
+    pisah("-")
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("8.", gp, "CARINAMA", \
+        "untuk mencari di data (contoh: CARINAMA -Rendang atau CARINAMA -*)"))
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("9.", gp, "CARITIPE", \
+        "untuk mencari berdasarkan tipe (contoh: CARITIPE -Makanan)"))
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("10.", gp, "CARIASAL", \
+        "untuk mencari berdasarkan asal (contoh: CARIASAL -Jawa Tengah)"))
+    pisah("-")
+    print ('{:^125}'.format("-=Perintah statistik data=-"))
+    pisah("-")
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("11.", gp, "STAT",\
+         "untuk menunjukkan jumlah data dalam database"))
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("12.", gp, "STATTIPE", \
+        "untuk menunjukkan jumlah tipe dalam database (contoh: CARITIPE -Makanan)"))
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("13.", gp, "STATASAL", \
+        "untuk menunjukkan jumlah asal dalam database (contoh: CARIASAL -Jawa Tengah)"))
+    pisah("-")
+    print ('{:^125}'.format("-=Perintah lain-lain=-"))
+    pisah("-")
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("14.", gp, "CETAK",\
+         "untuk mencetak data (contoh: CETAK)"))
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("15.", gp, "KELUAR",\
+         "untuk keluar dari program."))
+    print("{:<3} {:<16} '{:^10}' {:<78}".format("16.", gp, "CREDITS",\
+         "untuk melihat credits dan ucapan terima kasih"))
+    pisah("-")
+    print ('{:<4}{:^117}{:>4}'.format("****","-= Akhir dari file bantuan =-","****"))
+    pisah("=")
+    line_skip()
+
+def cari_nama(dictionary, name):
+    '''
+    Menelusuri dictionary berdasarkan nama.
+    '''
+    data_ini=(dictionary[name])
+    print('Warisan budaya {} adalah {} dari {}. Referensi untuk budaya ini dapat didapatkan di {}.'.\
+        format(name, data_ini[0], data_ini[1], data_ini[2]))
+    line_skip()
+
+def cari_tipe(dictionary, typea):
+    '''
+    Menelusuri dictionary berdasarkan tipe.
+    '''
+    nomer = 0
+    sentinel = False
+    list_of_true_keys=[]
+    list_of_keys = list(dictionary.keys())
+    list_of_values = list(dictionary.values())
+    for i in range (len(list_of_keys)):
+        data = list_of_values[i]
+        if data[0]==typea:
+            sentinel=True
+        else:
+            sentinel=False
+        if sentinel == True:
+            list_of_true_keys.append(list_of_keys[i])
+
+    pisah("=")
+    print(('{:^125}'.format('Daftar data dengan tipe {}.'.format(typea))))
+    pisah("=")
+    print ('|{:<4}|{:^20}|{:^20}|{:^20}|{:^55}|'.format("No.", "Nama","Tipe", "Asal", "Referensi"))
+    pisah("=")
+    for i in range (len(list_of_true_keys)):
+        data = dictionary[list_of_true_keys[i]]
+        nomer+=1
+        print ('|{:<4}|{:^20}|{:^20}|{:^20}|{:^55}|'.format(nomer,\
+             list_of_true_keys[i], data[0], data[1], data[2]))
+    pisah("=")
+    line_skip()
+
+def cari_asal(dictionary, typea):
+    '''
+    Menelusuri database berdasarkan asal.
+    '''
+    nomer = 0
+    sentinel = False
+    list_of_true_keys=[]
+    list_of_keys = list(dictionary.keys())
+    list_of_values = list(dictionary.values())
+    for i in range (len(list_of_keys)):
+        data = list_of_values[i]
+        if data[1]==typea:
+            sentinel=True
+        else:
+            sentinel=False
+        if sentinel == True:
+            list_of_true_keys.append(list_of_keys[i])
+
+    pisah("=")
+    print(('{:^125}'.format('Daftar data yang berasal dari {}.'.format(typea))))
+    pisah("=")
+    print ('|{:<4}|{:^20}|{:^20}|{:^20}|{:^55}|'.format("No.", "Nama","Tipe", "Asal", "Referensi"))
+    pisah("=")
+    for i in range (len(list_of_true_keys)):
+        data = dictionary[list_of_true_keys[i]]
+        nomer+=1
+        print ('|{:<4}|{:^20}|{:^20}|{:^20}|{:^55}|'.format(nomer,\
+             list_of_true_keys[i], data[0], data[1], data[2]))
+    pisah("=")
+    line_skip()
+
+def stat_tipe(dictionary):
+    '''
+    Menunjukan statistik berdasarkan tipe
+    '''
+    try:
+        nomer=0
+        counter = 0
+        slave_dict = {}
+        tipe_done = []
+        list_of_values = list(dictionary.values())
+
+        for tipe in list_of_values:
+            if tipe[0] in tipe_done:
+                counter = slave_dict[tipe[0]]
+                counter +=1
+                slave_dict[tipe[0]] = counter
+                counter=0
+            elif tipe[0] not in tipe_done:
+                counter = 1
+                slave_dict[tipe[0]] = counter
+                tipe_done.append(tipe[0])
+                counter=0
+        sorted_dict = sortir_jumlah(slave_dict)
+        pisah("=")
+        print('{:^125}'.format('Daftar tipe dalam database.'))
+        pisah("=")
+        print ('{:<2}{:<5}|{:^57}|{:^57}{:>2}'.format("||", "No.", "Tipe",\
+             "Jumlah", "||"))
+        pisah("-")
+        for Tipe in sorted_dict:
+            nomer+=1
+            print ('{:<2}{:<5}|{:^57}|{:^57}{:>2}'.format("||", nomer ,\
+                Tipe, sorted_dict[Tipe], "||"))
+        pisah("=")
+        line_skip()
+    except UnboundLocalError:
+        print("Anda belum mengimport database!")
+        line_skip()
+
+def stat_asal(dictionary):
+    '''
+    Menunjukan statistik berdasarkan asal provinsi
+    '''
+    try:
+        nomer=0
+        counter = 0
+        slave_dict = {}
+        tipe_done = []
+        list_of_values = list(dictionary.values())
+        for asal in list_of_values:
+            if asal[1] in tipe_done:
+                counter = slave_dict[asal[1]]
+                counter +=1
+                slave_dict[asal[1]] = counter
+                counter=0
+            elif asal[1] not in tipe_done:
+                counter = 1
+                slave_dict[asal[1]] = counter
+                tipe_done.append(asal[1])
+                counter=0
+        sorted_dict = sortir_jumlah(slave_dict)
+        pisah("=")
+        print(('{:^125}'.format('Daftar asal provinsi dalam database'))) 
+        pisah("=")
+        print ('{:<2}{:<5}|{:^57}|{:^57}{:>2}'.format("||", "No.", "Asal",\
+             "Jumlah", "||"))
+        pisah("-")
+        for Asal in sorted_dict:
+            nomer+=1
+            print ('{:<2}{:<5}|{:^57}|{:^57}{:>2}'.format("||", nomer ,\
+                 Asal, sorted_dict[Asal], "||"))
+        pisah("=")
+        line_skip()
+    except UnboundLocalError:
+        print("Anda belum mengimport database!")
+        line_skip()
+
+def cetak(master_list):
+    nomor = 0
+    pisah("=")
+    print('{:^125}'.format('Daftar data didalam database.'))
+    pisah("=")
+    print ('|{:<4}|{:^20}|{:^20}|{:^20}|{:^55}|'\
+        .format("No.", "Nama","Tipe", "Asal", "Referensi"))
+    pisah("-")
+    for baris in master_list:
+        nomor+=1
+        NamaBudaya = shortener(baris[0])
+        TipeBudaya = shortener(baris[1])
+        AsalBudaya = shortener(baris[2])
+        RefrBudaya = shortener(baris[3],55)
+        print ('|{:^4}|{:<20}|{:<20}|{:<20}|{:<55}|'.format(nomor, NamaBudaya, TipeBudaya, AsalBudaya, RefrBudaya))
+    pisah("=")
+    print ('{:^125}'.format("Ada kemungkinan bahwa data terpotong jika panjang data > 20 karakter."))
+    line_skip()
+    
+def shortener(string, lenght=20):
+    '''Memendekkan string untuk cukup dalam format.'''
+    if len(string) <= lenght:
+        return string
+    else:
+        return (string[0:(lenght-3)]+"...")
+def cekstat(master_list):
+    '''
+    Mengecek apakah sudah ada database yang di-import.
+    '''
+    try:
+        if len(master_list) == 0:
+            print ("DataBase belum di-import")
+            line_skip()
+        elif len(master_list) != 0 :
+            print ("Database sudah di-import!")
+            line_skip()
+    except UnboundLocalError:
+        print("Anda belum mengimport database!")
+        line_skip()
+
+def kill():
+    '''
+    Exit Condition dari program
+    '''
+    while True:
+        print("Apakah anda ingin keluar dari program ini? (Y/N)")
+        x = input(">>> ")
+        if x == "Y" or x=="y":
+            line_skip()
+            import time
+            pisah("%")
+            print ('{:<2}{:^121}{:>2}'.\
+                format("||", "Terima kasih sudah menggunakan", "||"))
+            print ('{:<2}{:^121}{:>2}'.\
+                format("||", "BudayaKB™", "||"))
+            print ('{:<2}{:^121}{:>2}'.\
+                format("||", "Lite Edition™", "||"))
+            print ('{:<2}{:^121}{:>2}'.\
+                format("||", "Cintailah budaya Indonesia!!", "||"))
+            pisah("%")
+            time.sleep(5)
+            quit()
+        elif x == "N" or x == "n":
+            line_skip()
+            break
+        else:
+            print ("Input tidak valid!")
+            line_skip()
+
+def credits():
+    '''
+    Mencetak 'credits' dan ucapan terima kasih.
+    '''
+    line_skip()
+    pisah("&")
+    print ('{:<2}{:^121}{:>2}'.format("||", "BudayaKB™: Lite Edition", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", version, "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", "Terakhir dicompile:", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", last_compiled, "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", " ", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", "Dibuat oleh:", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", "Francis Wibisono", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", "1906350553", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", "FASILKOM UI 2019 #MAUNG", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", " ", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", "Terima kasih pada:", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", "Kak Kevin Christian 'KC'", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", "Kak Kerenza Doxolodeo", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", "Kak Ignatius Bagussaputra", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", "Mustafa Zaki Assagaf", "||"))
+    print ('{:<2}{:^121}{:>2}'.format("||", "Raihan Rizqi", "||"))
+    pisah("&")
+    line_skip()
+
+def refresh_database(master_list):
+    '''
+    Mengekspor dan mengimpor ulang data ke filepath dengan data di master_list
+    '''
+    try:
+        export(master_list, 'temp.csv')
+        dictionary, master_list = buka('temp.csv')
+        return dictionary, master_list
+    except UnboundLocalError:
+        print("Belum ada data di database!!")
+
+def export(master_list, argument):
+    '''
+    Mengekspor master_list ke file di argument
+    '''
+    exporting_list=[]
+    for line in master_list:
+        slave_list=[]
+        for data in line:
+            if type(data) == str:
+                slave_list.append(data)
+            elif type(data) == list:
+                for isi in data:
+                    slave_list.append(isi)
+        exporting_list.append(slave_list)
+
+    with open(argument,'w', newline = "") as file:
+        penulis = csv.writer(file)
+        for i in range (len(exporting_list)):
+            print("> Menulis", (exporting_list[i]))
+            penulis.writerow(exporting_list[i])
+    line_skip()
+    print("Penulisan ke DataBase berhasil!")
+    line_skip()
+
+def clear(master_list, dictionary):
+    '''
+    Menghapus database sementara dan file database sementara
+    '''
+    import os
+    master_list = []
+    dictionary = {}
+    if os.path.exists("temp.csv"):
+        print ("File sementara ditemukan!")
+        os.remove("temp.csv")
+        print ("Menghapus file sementara...")
+        print ("File sementara berhasil dihapus!")
+    else:
+        print("Tidak ada file sementara yang dibuat")
+    print("DataBase telah dihapus!")
+    return master_list, dictionary
+
+def sortir_jumlah(dict_of_jumlah):
+    '''
+    Menyortir jumlah dalam value dictionary
+    '''
+    import collections
+    sorted_list = sorted(dict_of_jumlah.items(), \
+        key=lambda kv: kv[1], reverse = True) 
+    sorted_dict = collections.OrderedDict(sorted_list)
+    return sorted_dict
+
+def minta_input():
+    '''
+    Meminta input untuk menjalankan program
+    '''
+    while True:
+        argument = ""
+        print("Masukkan perintah untuk menjalankan program.")
+        print("Masukkan 'h' untuk mencetak daftar perintah. ")
+        cmd = input(">>> ").split(" -")
+        first_cmd = cmd[0]
+        command = first_cmd.upper()
+        line_skip()
+
+        #logic untuk mencari argument
+        if len(cmd) != 1:
+            argument = cmd[1]
+
+        if command == "H":
+            help()
+        elif command == "IMPORT":
+            try:
+                dictionary, master_list = buka(argument)
+            except FileNotFoundError:
+                print("File tidak ditemukan!")
+            except UnboundLocalError:
+                print("Anda belum memasukkan nama file!")
+                line_skip()
+            try:
+                if len(dictionary)!=0:
+                    print ("Data telah di-impor dengan sukses!!")
+                    print ("Ada {} buah data ter - import.".format(len(dictionary)))
+                    line_skip()
+                elif len(dictionary)==0:
+                    print("File kosong!")
+                    line_skip()
+            except UnboundLocalError:
+                print("Format file tidak didukung!")
+
+        elif command == "CETAK":
+            try:
+                cetak(master_list)
+            except UnboundLocalError:
+                print ("Tidak ada data untuk dicetak!")
+            line_skip()
+
+        elif command == "CARINAMA":
+            try:
+                if argument == "*":
+                    try:
+                        cetak(master_list)
+                    except:
+                        print("Tidak ada data untuk ditelusuri!")
+                else:
+                    try:
+                        cari_nama(dictionary, argument)
+                    except UnboundLocalError:
+                        print("Anda belum mengimport data!")
+                        line_skip()
+            except KeyError:
+                print ("Nama budaya tersebut tidak ditemukan!")
+                line_skip()
+
+        elif command == "CARITIPE":
+            try:
+                cari_tipe(dictionary, argument)
+            except KeyError:
+                print ("Tipe tidak ditemukan!")
+                line_skip()
+            except UnboundLocalError:
+                print("Anda belum mengimport data!")
+                line_skip()
+
+        elif command == "CARIASAL":
+            try:
+                cari_asal(dictionary, argument)
+            except KeyError:
+                print ("Asal daerah tidak ditemukan!")
+                line_skip()
+            except UnboundLocalError:
+                print("Anda belum mengimport data!")
+                line_skip()
+
+        elif command == "TAMBAH":
+            while True:
+                try:
+                    try:
+                        Nama, Tipe, Asal, Referensi = append_input(dictionary)
+                    except TypeError:
+                        line_skip()
+                        print("Proses append dibatalkan pengguna!")
+                        line_skip
+                        break
+                    dictionary[Nama]=[Tipe, Asal, Referensi]
+                    print("Entri", Nama, "berhasil ditambahkan!")
+                    line_skip()
+                    master_list=update_master_list(dictionary)
+                    line_skip()
+                    break
+                except UnboundLocalError:
+                    dictionary = {}
+                    master_list = []
+                    print ("Saat ini tidak ada data di Database sementara.")
+                    print ("Jangan lupa untuk menggunakan perintah REFRESH atau EXPORT segera!")
+                    line_skip()
+            if len(dictionary)!=0:
+               print("Jangan lupa untuk menjalankan perintah REFRESH segera!")
+
+        elif command == "HAPUS":
+            try:
+                del dictionary[argument]
+                master_list=update_master_list(dictionary)
+                print ('Entri {} berhasil dihapus!'.format(argument))
+                print ("Jangan lupa menjalankan perintah REFRESH atau EXPORT segera!")
+            except KeyError:
+                print('Entri {} tidak ada di dalam database!'.format(argument))
+
+        elif command == "STAT":
+            try:
+                print ("Terdapat", (len(dictionary)), "buah warisan budaya di database ini.")
+            except UnboundLocalError:
+                print("Anda belum mengimpor database!")
+
+        elif command == "STATTIPE":
+            try:
+                stat_tipe(dictionary)
+            except UnboundLocalError:
+                print("Anda belum mengimpor database!")
+
+        elif command == "STATASAL":
+            try:
+                stat_asal(dictionary)
+            except UnboundLocalError:
+                print("Anda belum mengimpor database!")
+
+        elif command == "EXPORT":
+            try:
+                export(master_list, argument)
+            except UnboundLocalError:
+                print("Tidak ada data untuk diekspor!")
+                line_skip()
+            except FileNotFoundError:
+                print("Anda belum menspesifikasikan filepath untuk ekspor!")
+                line_skip()
+
+        elif command == "UBAH":
+            try:
+                dictionary = update_data(dictionary, argument)
+                master_list = update_master_list(dictionary)
+                print ("Jangan lupa untuk segera menjalankan perintah REFRESH!")
+                line_skip()
+            except KeyError:
+                print ("Nama data tidak ditemukan!")
+                line_skip()
+            
+        elif command == "REFRESH":
+            dictionary, master_list = refresh_database(master_list)
+
+        elif command == "KELUAR":
+            kill()
+
+        elif command == "CLEAR":
+            try:
+                master_list, dictionary = clear(master_list, dictionary)
+                line_skip()
+            except UnboundLocalError:
+                print("Tidak ada data untuk dihapus!")
+                line_skip()
+
+        elif command =="CREDITS":
+            credits()
+        elif command == "":
+            print ("Anda belum memasukkan perintah!")
+
+        else:
+            print("Perintah tidak dikenal!")
+
+def main():
+    header()
+    minta_input()
+
+if __name__ == "__main__":
+    main()
